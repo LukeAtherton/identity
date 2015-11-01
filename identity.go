@@ -3,21 +3,20 @@ package identity
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/binary"
+	// "encoding/binary"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"strings"
-	"sync/atomic"
-	"time"
+	// "sync/atomic"
+	// "time"
 )
 
-var (
-	seq  uint32
-	node = getNodeUint32()
-)
+// var (
+// 	seq  uint32
+// 	node = getNodeUint32()
+// )
 
-type ID [16]byte
+type ID []byte
 
 func NewUUID() ID {
 	id, _ := NewRandomUUID()
@@ -39,23 +38,23 @@ func NewRandomUUID() (id ID, err error) {
 // 8 bytes of UNIXNANO
 // 4 bytes of hardware address
 // 4 bytes of counter
-func NewSequentialUUID() (id ID, err error) {
-	id = make([]byte, 16)
+// func NewSequentialUUID() (id ID, err error) {
+// 	id = make([]byte, 16)
 
-	nano := time.Now().UnixNano()
-	incr := atomic.AddUint32(&seq, 1)
+// 	nano := time.Now().UnixNano()
+// 	incr := atomic.AddUint32(&seq, 1)
 
-	binary.BigEndian.PutUint64(id[0:], uint64(nano))
-	binary.BigEndian.PutUint32(id[8:], node)
-	binary.BigEndian.PutUint32(id[12:], incr)
+// 	binary.BigEndian.PutUint64(id[0:], uint64(nano))
+// 	binary.BigEndian.PutUint32(id[8:], node)
+// 	binary.BigEndian.PutUint32(id[12:], incr)
 
-	return
-}
+// 	return
+// }
 
-func getNodeUint32() uint32 {
-	n := uuid.NodeID()
-	return binary.BigEndian.Uint32(n)
-}
+// // func getNodeUint32() uint32 {
+// // 	n := uuid.NodeID()
+// // 	return binary.BigEndian.Uint32(n)
+// // }
 
 func (id ID) Equals(id2 ID) bool {
 	return bytes.Equal(id, id2)
@@ -91,14 +90,14 @@ func (id ID) MarshalText() (text []byte, err error) {
 
 //implements TextUnmarshaler for text encoding
 func (id *ID) UnmarshalText(text []byte) error {
-	decoded := DecodeIdString(string(text))
+	decoded := Parse(string(text))
 	*id = decoded
 	return nil
 }
 
 //implements JSONUnmarshaler for json dencoding
 func (id *ID) UnmarshalJSON(text []byte) (err error) {
-	decoded := DecodeIdString(string(text))
+	decoded := Parse(string(text))
 	*id = decoded
 	return
 }
